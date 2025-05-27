@@ -1,0 +1,11 @@
+boto3
+pinecone
+pinecone-text
+python-dotenv
+langchain
+langchain_community
+pymupdf
+pypdf
+langchain_huggingface
+langchain_groq
+langchain_core
