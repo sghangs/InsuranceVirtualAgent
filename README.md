@@ -16,5 +16,9 @@
 
 1. Setup AWS resources
     a. create S3 bucket (rag-source-bucket13).
-    b. create lambda function to have the logic of indexing the policy document in RAG process. This function automatically triggered by S3 to create the embeddings of policy document and store it in the pineconne vectore db.
+    b. create policy to enable the lambda to get s3 object(policy documents) and do the 
+    processing. policy name -> (s3-trigger-lambda)
+    c. create execution role that grants a lambda function permission to access aws resources and services.In this step, create an execution role using the permissions policy that you created in the previous step. role -> (s3-trigger-lambda-role)
+    d. create lambda function to have the logic of indexing the policy document in RAG process. This function automatically triggered by S3 to create the embeddings of policy document and store it in the pineconne vectore db.
+    lambda function -> (Insurance-Virtual-Assitant)
 
