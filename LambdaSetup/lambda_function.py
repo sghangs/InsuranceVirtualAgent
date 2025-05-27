@@ -2,8 +2,7 @@ import boto3
 import os
 import uuid
 from typing import List
-from dotenv import load_dotenv
-load_dotenv()
+import json
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.llms.bedrock import Bedrock
@@ -13,17 +12,24 @@ from pinecone import ServerlessSpec
 from pinecone_text.sparse import BM25Encoder
 
 
-#Environment variables
-os.environ["PINECONE_API_KEY"]=os.getenv("PINECONE_API_KEY")
-os.environ["HF_TOKEN"]=os.getenv("HF_TOKEN")
-os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
+def get_pinecone_api_key():
+    """ 
+    Get the Pinecone api key to access the pinecone database
+    Args:
+        None
+    Returns:
+        apikey:str
+    """
+    client = boto3.client("secretsmanager")
+    response = client.get_secret_value(SecretId="pinecone_api_key")
+    secret = json.loads(response["SecretString"])
+    return secret["apikey"]
 
-
-def initialization():
+def initialization(pinecone_api_key:str):
     """ 
     Initialize the aws services and pinecone vector db
     Args:
-        None
+        pinecone_api_key:str -> Pinecone api key
     Returns:
         bedrock: bedrock client accessed through boto3
         pc: pinecone client
@@ -35,7 +41,7 @@ def initialization():
         bedrock = boto3.client(service_name="bedrock-runtime")
 
         #pinecone client
-        pc = Pinecone()
+        pc = Pinecone(api_key=pinecone_api_key)
 
         #create hybrid(dense + sparse) index with external embeddings 
         index_name = "insurance-virtual-agent-hybrid"
@@ -137,8 +143,11 @@ def generate_sparse_embeddings(corpus: List[str],text_chunk: str):
 
 #Define handler function
 def handler_function(event,context):
+    #get pinecone api key
+    pinecone_api_key = get_pinecone_api_key()
+
     #call initialization function to create aws client and pinecone index
-    bedrock,pc,index,llm,s3_client = initialization()
+    bedrock,pc,index,llm,s3_client = initialization(pinecone_api_key)
     try:
         # Iterate over the S3 event object and get the key for all uploaded files
         for record in event["Records"]:

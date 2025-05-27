@@ -1,9 +1,7 @@
 boto3
 pinecone
 pinecone-text
-python-dotenv
 langchain
 langchain_community
 pypdf
-langchain_huggingface
 langchain_core
