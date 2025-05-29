@@ -1,24 +1,38 @@
-## Insurance Virtual Agent 🚀
-### Overview
-The Insurance Virtual Agent is an AI-powered chatbot designed to provide seamless assistance for insurance-related queries. Leveraging retrieval-augmented generation (RAG) and metadata filtering, this agent improves document retrieval accuracy and delivers precise responses to customer inquiries.
+## **Insurance Virtual Agent 🚀**
 
-### Key Features
+### **Overview**
+
+This project is about Insurance Virtual Agent which can help insured to find the details regardings their policy.
+
+Insurance is a document-heavy industry with numerous terms and conditions, making it challenging for policyholders to find accurate answers to their queries regarding policy details or the claims process. This often leads to higher customer churn due to frustration and misinformation. This article explores how to address this issue using Generative AI by building an end-to-end Retrieval-Augmented Generation (RAG) chatbot for insurance. We call it IVA(Insurance Virtual Agent), which is built over the robust AWS stack.
+
+### **Process**
+
+1. When a policy is issued, the policy document is stored in an S3 bucket.
+2. An S3 notification triggers a Lambda function upon document upload. This function   tokenizes the document, generates vector embeddings via AWS Bedrock, and store it in pineconne vector db.
+3. When a user queries the chatbot, it retrieves the relevant vector index based on the policy number. The chatbot then uses this index and the user’s query, processed through a Large Language Model (LLM) with AWS Bedrock and LangChain, to generate an accurate response.
+
+### Architecture
+
+![Architecture of Insurance Virtual Agent](data/Images/IVA_architecture.jpg)
+
+### **Key Features**
 ✅ Conversational AI – Engages users in natural conversations.
 ✅ RAG System for Policies – Retrieves accurate policy information using Pinecone and LangChain.
 ✅ Metadata Filtering – Optimizes search accuracy for insurance documents.
 ✅ Hybrid Search Support – Combines dense and sparse embeddings for better relevance.
 ✅ AWS-Powered Deployment – Runs efficiently on AWS Lambda and Bedrock.
 
-### Tech Stack
+### **Tech Stack**
 🔹 Programming Language: Python
 🔹 Embedding Models: amazon.titan-embed-text-v2:0 (Amazon), pinecone-sparse-english-v0 (Pinecone)
 🔹 Retrieval System: Pinecone, LangChain
 🔹 Deployment: AWS Lambda, AWS Bedrock
 🔹 Data Processing: UUID-based indexing, Metadata filtering
 
-### Setup Instructions
+### **Setup Instructions**
 
-#### Setup AWS resources
+#### **Setup AWS resources**
 1. Create S3 bucket (rag-source-bucket13).
 2. Create policy to enable the lambda to get s3 object(policy documents) and do the 
     processing. policy name -> (s3-trigger-lambda)
@@ -47,15 +61,15 @@ The easiest way to do this is create a layer.
 
     Run these commands:
 
-    pip install \
+    `pip install \
     --platform manylinux2014_x86_64 \
     --target=python \
     --implementation cp \
     --python-version 3.12 \
     --only-binary=:all: \
     --upgrade \
-    -r requirements.txt
-    2. zip -r imaging.zip python/
+    -r requirements.txt`
+    2. `zip -r imaging.zip python/`
     3. If your Lambda is running on ARM, replace manylinux2014_x86_64 with manylinux2014_aarch64
 
     Create the layer from the resulting zip file and use it in your lambda.
@@ -69,10 +83,16 @@ The easiest way to do this is create a layer.
 
 
 
-### Usage Guide
+### **Usage Guide**
 
-### Query Insurance Policies
+### **Query Insurance Policies**
+
+### **Links**
+
+Below are some docs which are useful in this project.
+
+1. [Pinecone Hybrid Search](https://docs.pinecone.io/guides/search/hybrid-search)
+2. [S3 Trigger to invoke lambda](https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html)
+3. [Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/python-layers.html)
 
 
-Contributing
-🤝 We welcome contributions! Please submit pull requests or report issues via GitHub Issues.
