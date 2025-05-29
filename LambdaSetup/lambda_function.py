@@ -5,25 +5,38 @@ from typing import List
 import json
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.llms.bedrock import Bedrock
+from langchain_community.llms import Bedrock
 from urllib.parse import unquote_plus
-from pinecone.grpc import PineconeGRPC as Pinecone
+from pinecone import Pinecone
 from pinecone import ServerlessSpec
-from pinecone_text.sparse import BM25Encoder
+from botocore.exceptions import ClientError
 
 
-def get_pinecone_api_key():
+def get_secret():
     """ 
-    Get the Pinecone api key to access the pinecone database
+    Get pinecone api key using aws secretmanager services.
     Args:
         None
     Returns:
-        apikey:str
+        api_key:str
     """
-    client = boto3.client("secretsmanager")
-    response = client.get_secret_value(SecretId="pinecone_api_key")
+    secret_name = "pinecone_key"
+    region_name = "us-east-1"
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+    try:
+        response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise e
+
     secret = json.loads(response["SecretString"])
-    return secret["apikey"]
+    return secret["pinecone_key"]
 
 def initialization(pinecone_api_key:str):
     """ 
@@ -49,7 +62,7 @@ def initialization(pinecone_api_key:str):
             pc.create_index(
                 name=index_name,
                 vector_type="dense",
-                dimension=384,
+                dimension=256,
                 metric="dotproduct",
                 spec=ServerlessSpec(cloud="aws",region="us-east-1"),
                 deletion_protection="disabled",
@@ -59,6 +72,8 @@ def initialization(pinecone_api_key:str):
 
             )
             print("Pinecone index created successfully")
+        else:
+            print(f"Pinecone index {index_name} has already created")
         
         #Get the index host
         index_response = pc.describe_index(name=index_name)
@@ -68,7 +83,7 @@ def initialization(pinecone_api_key:str):
 
         #S3 client initialization
         s3_client = boto3.client("s3")
-        print("Initialization completed successfully")
+        
         return bedrock,pc,index,s3_client
     except Exception as e:
         print(f"Error occured in Initialization : {e}")
@@ -89,8 +104,8 @@ def document_processing(file_path,policy_number):
     docs = loader.load()
     #split the docs
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 1000,
-        chunk_overlap = 200,
+        chunk_size = 500,
+        chunk_overlap = 50,
         length_function = len
     )
     docs = splitter.split_documents(docs)
@@ -103,7 +118,7 @@ def document_processing(file_path,policy_number):
 
 def generate_dense_embeddings(text,bedrock,model_id="amazon.titan-embed-text-v2:0"):
     """ 
-    Generate dense vectors of the document text using bedrock 
+    Generate dense vectors of the document text using aws bedrock 
 
     Args:
         text (str): text which need to be transformed into dense vectors
@@ -112,87 +127,97 @@ def generate_dense_embeddings(text,bedrock,model_id="amazon.titan-embed-text-v2:
     Returns:
         embedding (List[int]): Dense vector for text data
     """
+    body = json.dumps({
+            "inputText": text,
+            "dimensions": 256,
+            "normalize": True
+        })
     response = bedrock.invoke_model(
-        body={"inputText":text,"dimensions": 256},
-        modelId=model_id
+        body=body,
+        modelId=model_id,
+        accept="application/json",
+        contentType="application/json"
     )
-    return response["embedding"]
+    response_body=json.loads(response.get("body").read())
+    response=response_body["embedding"]
+    return response
 
-def generate_sparse_embeddings(corpus: List[str],text_chunk: str):
+def generate_sparse_embeddings(pc,text_chunk: str):
     """ 
-    Generate BM25 sparse embeddings for a list of text chunks after fitting the BM25 
-    encoder to the corpus.
-
+    Generate sparse embeddings using pinecone hosted embedding models 
     Args:
-        corpus (List[str]): A list of text chunks to fit the BM25 encoder.
+        pc (Pinecone object): Pinecone client object
         text_chunks (str): Text chunk to be embedded.
 
     Returns:
-        List[dict]: A list of BM25 sparse embeddings for each text chunk in the format 
-        {indices, values}.
-    """
-    #Initialize BM25 encoder
-    encoder = BM25Encoder()
-    #Fit the encoder to the corpus
-    encoder.fit(corpus)
-    #Generate sparse embeddings for each text chunk
-    sparse_embeddings = encoder.encode_documents(text_chunk)
+        EmbeddingsList: A list of sparse embeddings data 
 
+    """
+    sparse_embeddings = pc.inference.embed(
+        model="pinecone-sparse-english-v0",
+        inputs=[text_chunk],
+        parameters={"input_type": "passage", "truncate": "END"}
+
+    )
     return sparse_embeddings
+    
 
 
 #Define handler function
-def handler_function(event,context):
-    #get pinecone api key
-    pinecone_api_key = get_pinecone_api_key()
+def lambda_handler(event,context):
+    print("Entering lambda handler function")
+    #Get pinecone api key
+    pinecone_api_key = get_secret()
+    print("Pinecone key fetched successfully")
 
     #call initialization function to create aws client and pinecone index
-    bedrock,pc,index,llm,s3_client = initialization(pinecone_api_key)
+    bedrock,pc,index,s3_client = initialization(pinecone_api_key)
+    print("Initialization completed successfully")
     try:
         # Iterate over the S3 event object and get the key for all uploaded files
         for record in event["Records"]:
             bucket = record["s3"]["bucket"]["name"]
             key = unquote_plus(record["s3"]["object"]["key"],encoding='utf-8') # Decode the S3 object key to remove any URL-encoded characters
+            print("Key/File name is : ",key)
             policy_number = key.split("_")[-1].split(".")[0]  # Get the policy number from the name of file
-            download_path = f'/temp/{uuid.uuid4()}.pdf'  # Create a path in the lambda temp directory to save the file
+            print("Policy number is : ",policy_number)
+            download_path = f'/tmp/{key}'  # Create a path in the lambda temp directory to save the file
 
             #check if the file is pdf file
             if key.lower().endswith('.pdf'):
                 s3_client.download_file(bucket,key,download_path)
+            
                 #call document processing function to process the documents
                 documents = document_processing(download_path,policy_number)
-                #create corpus of all text inside the policy document
-                corpus = [doc.page_content for doc in documents]
+                print("Document processing completed successfully")
+
                 #store embeddings in pinecone
                 vectors = []
+                print("Starting embedding generation")
                 for doc in documents:
+                    sparse_embedding = generate_sparse_embeddings(pc,doc.page_content)
+                    sparse_indices = sparse_embedding.data[0]["sparse_indices"]
+                    sparse_values = sparse_embedding.data[0]["sparse_values"]
+
                     dense_embedding = generate_dense_embeddings(doc.page_content,bedrock)
-                    sparse_embedding = generate_sparse_embeddings(corpus,doc.page_content)
+                    
                     vectors.append({
                         "id":str(uuid.uuid4()),
-                        "dense_vector":dense_embedding,
-                        "sparse_vector":sparse_embedding,
+                        "values":dense_embedding,
+                        "sparse_values":{'indices': sparse_indices, 'values': sparse_values},
                         "metadata":{"text":doc.page_content,"policy_number":policy_number}
                     })
-                
+
                 #upsert the records into hybrid index
                 upsert_response = index.upsert(
                     vectors=vectors,
                     namespace="policy-documents"
                 )
-                if upsert_response["status"] == "success":
-                    print(f"Total number of vectors are loaded in database : {upsert_response.upserted_count}")
-                else:
-                    print(f"Error occured in upserting {upsert_response.errors}")
+                print("Upsert response is : ", upsert_response.status)
+                print(f"Total number of vectors are loaded in database : {upsert_response.upserted_count}")
+                
             else:
                 print(f"File uploaded is not pdf file : {key}")
     except Exception as e:
         print(f"Error occured : {e}")
-
-
-
-
-
-
-
 
