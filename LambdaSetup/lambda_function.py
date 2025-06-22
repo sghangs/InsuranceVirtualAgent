@@ -10,17 +10,19 @@ from urllib.parse import unquote_plus
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 from botocore.exceptions import ClientError
+from llama_cloud_services import LlamaParse
+from langchain_core.documents import Document
 
 
 def get_secret():
     """ 
-    Get pinecone api key using aws secretmanager services.
+    Get pinecone and llama parse api key using aws secretmanager services.
     Args:
         None
     Returns:
-        api_key:str
+        secret:dict
     """
-    secret_name = "pinecone_key"
+    secret_list = ["pinecone_key","llama_api_key"]
     region_name = "us-east-1"
     # Create a Secrets Manager client
     session = boto3.session.Session()
@@ -29,14 +31,15 @@ def get_secret():
         region_name=region_name
     )
     try:
-        response = client.get_secret_value(
-            SecretId=secret_name
+        response = client.batch_get_secret_value(
+            SecretIdList=secret_list
         )
     except ClientError as e:
         raise e
 
-    secret = json.loads(response["SecretString"])
-    return secret["pinecone_key"]
+    secrets = {item['Name']: item['SecretString'] for item in response['SecretValues']}
+    
+    return secrets
 
 def initialization(pinecone_api_key:str):
     """ 
@@ -88,33 +91,53 @@ def initialization(pinecone_api_key:str):
     except Exception as e:
         print(f"Error occured in Initialization : {e}")
 
-def document_processing(file_path,policy_number):
+def document_processing(file_path,policy_number,llama_api_key):
     """ 
     Create the documents from the pdf file with added policy number
     Args:
         file_path (Any): Pdf file path
         policy_number (str): policy number
-    
+        llama_api_key (str): Llama API key
+
     Returns:
         doc (List[Document]): List of Documents
     
     """
-    #load the pdf file
-    loader = PyPDFLoader(file_path)
-    docs = loader.load()
-    #split the docs
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 500,
-        chunk_overlap = 50,
-        length_function = len
-    )
-    docs = splitter.split_documents(docs)
-    
-    #adding policy number information in the document metadata
-    for doc in docs:
-        doc.metadata["policy_number"] = policy_number
+    try:
+        #load the pdf file
+        parser = LlamaParse(
+            api_key=llama_api_key,
+            result_type="markdown",
+            system_prompt_append=(
+                """This is an Homeowner insurance policy document. If any page does not contain
+            headings, find from the previous page for the context. Also, document should clearly
+            state what should be covered and what should not be covered in the respective
+            categories. Categories can be found in the headings of the pages with largest
+            font size. If not found on the same page, look for the previous page."""
+            ),
+            use_vendor_multimodal_model=True,
+            vendor_multimodal_model_name="openai-gpt4o",
+            show_progress=True,
+        )
+        md_json_objs = parser.get_json_result(file_path)  # extract markdown data for insurance claim document
+        print("Markdown data extracted successfully")
 
-    return docs
+        md_json_list = []
+        for obj in md_json_objs:
+            md_json_list.extend(obj["pages"])
+
+        # Convert markdown data to Document objects
+        document_list = [Document(page_content=doc["md"],metadata={"page_number": i+1}) for i, doc in enumerate(md_json_list)]
+        print("Document objects created successfully")
+        
+        #adding policy number information in the document metadata
+        for doc in document_list:
+            doc.metadata["policy_number"] = policy_number
+
+        return document_list
+    except Exception as e:
+        print(f"Error occured in document processing : {e}")
+        
 
 def generate_dense_embeddings(text,bedrock,model_id="amazon.titan-embed-text-v2:0"):
     """ 
@@ -166,9 +189,14 @@ def generate_sparse_embeddings(pc,text_chunk: str):
 #Define handler function
 def lambda_handler(event,context):
     print("Entering lambda handler function")
-    #Get pinecone api key
-    pinecone_api_key = get_secret()
-    print("Pinecone key fetched successfully")
+    #Get pinecone and llama api key
+    secrets = get_secret()
+    pinecone_key_data = json.loads(secrets["pinecone_key"])
+    llama_key_data = json.loads(secrets["llama_api_key"])
+    
+    pinecone_api_key = pinecone_key_data["pinecone_key"]
+    llama_api_key = llama_key_data["llama_api_key"]
+    print("Pinecone and llama key fetched successfully")
 
     #call initialization function to create aws client and pinecone index
     bedrock,pc,index,s3_client = initialization(pinecone_api_key)
@@ -188,7 +216,7 @@ def lambda_handler(event,context):
                 s3_client.download_file(bucket,key,download_path)
             
                 #call document processing function to process the documents
-                documents = document_processing(download_path,policy_number)
+                documents = document_processing(download_path,policy_number,llama_api_key)
                 print("Document processing completed successfully")
 
                 #store embeddings in pinecone

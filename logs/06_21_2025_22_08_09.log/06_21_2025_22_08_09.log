@@ -1,0 +1,72 @@
+[ 2025-06-21 22:08:10,802 ] 1352 botocore.credentials - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+[ 2025-06-21 22:08:13,014 ] 79 root - INFO - Retriever Initialization and bind tools completed
+[ 2025-06-21 22:08:28,517 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:08:30,226 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:10:56,975 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:10:57,981 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:10:59,470 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:00,339 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:02,080 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:02,083 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:03,000 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:03,923 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:04,792 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:04,820 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:05,868 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:05,870 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:06,790 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:07,199 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:07,608 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:07,918 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:07,927 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:08,642 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:09,349 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:10,066 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:10,078 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:11,091 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:11,095 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:11,908 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:12,262 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:12,728 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:13,036 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:13,039 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:13,753 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:14,470 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:16,211 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:16,248 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:17,376 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:17,378 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:18,567 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:18,935 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:19,434 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:19,725 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:19,731 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:20,374 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:21,023 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:21,841 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:21,849 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:23,377 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:23,379 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:24,811 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:25,166 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:25,631 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:25,937 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:25,938 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:26,553 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:27,270 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:27,986 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:28,014 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:29,419 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:29,423 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:30,649 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:31,060 ] 103 root - INFO - Dense embeddings are generated
+[ 2025-06-21 22:11:31,571 ] 105 root - INFO - Sparse Embeddings are generated
+[ 2025-06-21 22:11:31,877 ] 120 root - INFO - Search results for documents are completed
+[ 2025-06-21 22:11:31,880 ] 179 root - INFO - Entering grade_documents...
+[ 2025-06-21 22:11:32,799 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:33,414 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:34,130 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:34,161 ] 281 root - INFO - Entering rewrite_query...
+[ 2025-06-21 22:11:35,564 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-21 22:11:35,572 ] 146 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-21 22:11:36,589 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
