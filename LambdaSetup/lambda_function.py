@@ -3,12 +3,8 @@ import os
 import uuid
 from typing import List
 import json
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.llms import Bedrock
 from urllib.parse import unquote_plus
 from pinecone import Pinecone
-from pinecone import ServerlessSpec
 from botocore.exceptions import ClientError
 from llama_cloud_services import LlamaParse
 from langchain_core.documents import Document
@@ -47,47 +43,60 @@ def initialization(pinecone_api_key:str):
     Args:
         pinecone_api_key:str -> Pinecone api key
     Returns:
-        bedrock: bedrock client accessed through boto3
         pc: pinecone client
         index: pinecone index
         s3_client: s3 client access  through boto3
     """
     try:
-        #Bedrock client initialization
-        bedrock = boto3.client(service_name="bedrock-runtime")
-
         #pinecone client
         pc = Pinecone(api_key=pinecone_api_key)
 
         #create hybrid(dense + sparse) index with external embeddings 
-        index_name = "insurance-virtual-agent-hybrid"
-        if not pc.has_index(index_name):
-            pc.create_index(
-                name=index_name,
-                vector_type="dense",
-                dimension=256,
-                metric="dotproduct",
-                spec=ServerlessSpec(cloud="aws",region="us-east-1"),
-                deletion_protection="disabled",
-                tags={
-                    "environment":"dev"
+        dense_index_name = "insurance-virtual-agent-dense"
+        if not pc.has_index(dense_index_name):
+            pc.create_index_for_model(
+                name=dense_index_name,
+                cloud="aws",
+                region="us-east-1",
+                embed={
+                    "model":"llama-text-embed-v2",
+                    "field_map":{"text": "chunk_text"}
                 }
 
             )
-            print("Pinecone index created successfully")
+            print("Pinecone dense index created successfully")
         else:
-            print(f"Pinecone index {index_name} has already created")
+            print(f"Pinecone index {dense_index_name} has already created")
+
+        sparse_index_name = "insurance-virtual-agent-sparse"
+        if not pc.has_index(sparse_index_name):
+            pc.create_index_for_model(
+                name=sparse_index_name,
+                cloud="aws",
+                region="us-east-1",
+                embed={
+                    "model":"pinecone-sparse-english-v0",
+                    "field_map":{"text": "chunk_text"}
+                }
+
+            )
+            print("Pinecone sparse index created successfully")
+        else:
+            print(f"Pinecone index {sparse_index_name} has already created")
         
         #Get the index host
-        index_response = pc.describe_index(name=index_name)
-        dns_host = index_response["host"]
+        dense_index_response = pc.describe_index(name=dense_index_name)
+        dense_dns_host = dense_index_response["host"]
+        dense_index = pc.Index(host=dense_dns_host)
 
-        index = pc.Index(host=dns_host)
+        sparse_index_response = pc.describe_index(name=sparse_index_name)
+        sparse_dns_host = sparse_index_response["host"]
+        sparse_index = pc.Index(host=sparse_dns_host)
 
         #S3 client initialization
         s3_client = boto3.client("s3")
         
-        return bedrock,pc,index,s3_client
+        return pc,dense_index,sparse_index,s3_client
     except Exception as e:
         print(f"Error occured in Initialization : {e}")
 
@@ -109,11 +118,18 @@ def document_processing(file_path,policy_number,llama_api_key):
             api_key=llama_api_key,
             result_type="markdown",
             system_prompt_append=(
-                """This is an Homeowner insurance policy document. If any page does not contain
-            headings, find from the previous page for the context. Also, document should clearly
-            state what should be covered and what should not be covered in the respective
-            categories. Categories can be found in the headings of the pages with largest
-            font size. If not found on the same page, look for the previous page."""
+                """
+                This is an Homeowner insurance policy document. 
+                1. Each document should clearly state what should be covered and what should 
+                    not be covered in the respective categories. 
+                2. Categories can be found in the headings of the pages with largest font size of the page.
+                3. If there is no heading found on that page, look for previous pages for headings. 
+                4. Each page has written "Home Insurance" on the top of the page. Do not consider that for headings.
+                5. Real headings are like "Buildings Insurance", "Contents Insurance" etc.
+                6. Extract the tables and each documents extracted from tables should have headings to
+                    differentiate the columns name.
+
+                """
             ),
             use_vendor_multimodal_model=True,
             vendor_multimodal_model_name="openai-gpt4o",
@@ -137,52 +153,6 @@ def document_processing(file_path,policy_number,llama_api_key):
         return document_list
     except Exception as e:
         print(f"Error occured in document processing : {e}")
-        
-
-def generate_dense_embeddings(text,bedrock,model_id="amazon.titan-embed-text-v2:0"):
-    """ 
-    Generate dense vectors of the document text using aws bedrock 
-
-    Args:
-        text (str): text which need to be transformed into dense vectors
-        bedrock (aws object): bedrock client for model access
-        model_id (str): name of bedrock model
-    Returns:
-        embedding (List[int]): Dense vector for text data
-    """
-    body = json.dumps({
-            "inputText": text,
-            "dimensions": 256,
-            "normalize": True
-        })
-    response = bedrock.invoke_model(
-        body=body,
-        modelId=model_id,
-        accept="application/json",
-        contentType="application/json"
-    )
-    response_body=json.loads(response.get("body").read())
-    response=response_body["embedding"]
-    return response
-
-def generate_sparse_embeddings(pc,text_chunk: str):
-    """ 
-    Generate sparse embeddings using pinecone hosted embedding models 
-    Args:
-        pc (Pinecone object): Pinecone client object
-        text_chunks (str): Text chunk to be embedded.
-
-    Returns:
-        EmbeddingsList: A list of sparse embeddings data 
-
-    """
-    sparse_embeddings = pc.inference.embed(
-        model="pinecone-sparse-english-v0",
-        inputs=[text_chunk],
-        parameters={"input_type": "passage", "truncate": "END"}
-
-    )
-    return sparse_embeddings
     
 
 
@@ -199,7 +169,7 @@ def lambda_handler(event,context):
     print("Pinecone and llama key fetched successfully")
 
     #call initialization function to create aws client and pinecone index
-    bedrock,pc,index,s3_client = initialization(pinecone_api_key)
+    pc,dense_index,sparse_index,s3_client = initialization(pinecone_api_key)
     print("Initialization completed successfully")
     try:
         # Iterate over the S3 event object and get the key for all uploaded files
@@ -223,26 +193,25 @@ def lambda_handler(event,context):
                 vectors = []
                 print("Starting embedding generation")
                 for doc in documents:
-                    sparse_embedding = generate_sparse_embeddings(pc,doc.page_content)
-                    sparse_indices = sparse_embedding.data[0]["sparse_indices"]
-                    sparse_values = sparse_embedding.data[0]["sparse_values"]
-
-                    dense_embedding = generate_dense_embeddings(doc.page_content,bedrock)
-                    
                     vectors.append({
                         "id":str(uuid.uuid4()),
-                        "values":dense_embedding,
-                        "sparse_values":{'indices': sparse_indices, 'values': sparse_values},
-                        "metadata":{"text":doc.page_content,"policy_number":policy_number}
+                        "chunk_text":doc.page_content,
+                        "policy_number":policy_number
                     })
 
                 #upsert the records into hybrid index
-                upsert_response = index.upsert(
-                    vectors=vectors,
-                    namespace="policy-documents"
+                dense_upsert_response = dense_index.upsert_records(
+                    "policy-documents",
+                    vectors
                 )
-                print("Upsert response is : ", upsert_response.status)
-                print(f"Total number of vectors are loaded in database : {upsert_response.upserted_count}")
+                print("Dense Upsert response is : ", dense_upsert_response.get("status_code"))
+                print(f"Total number of dense vectors are loaded in database : {dense_upsert_response.get("upsertedCount")}")
+                sparse_upsert_response = sparse_index.upsert_records(
+                    "policy-documents",
+                    vectors
+                )
+                print("Upsert response is : ", sparse_upsert_response.get("status_code"))
+                print(f"Total number of sparse vectors are loaded in database : {sparse_upsert_response.get("upsertedCount")}")
                 
             else:
                 print(f"File uploaded is not pdf file : {key}")

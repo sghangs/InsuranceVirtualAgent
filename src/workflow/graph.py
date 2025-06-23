@@ -37,7 +37,7 @@ from pinecone import Pinecone
 #Project package imports
 from src.retriever.retriever import HybridRetriever
 from src.llm import llm
-from src.constant import PINECONE_INDEX_NAME
+from src.constant import PINECONE_DENSE_INDEX_NAME,PINECONE_SPARSE_INDEX_NAME
 from src.exception.exception import InsuranceAgentException
 from src.logging.logger import logging
 from src.constant import MESSAGES_COUNT
@@ -70,10 +70,11 @@ class Graph():
         Initialize retriever and bind as a tool to llm
         """
         try:
-            pinecone_api_key = os.getenv("PINECONE_API_KEY")
-            index_name = PINECONE_INDEX_NAME
+            pinecone_api_key = os.getenv("PINECONE_API_KEY")        
+            dense_index_name = PINECONE_DENSE_INDEX_NAME
+            sparse_index_name = PINECONE_SPARSE_INDEX_NAME
 
-            self.retriever = HybridRetriever(pinecone_api_key,index_name)
+            self.retriever = HybridRetriever(pinecone_api_key,dense_index_name,sparse_index_name)
             self.tools = self.retriever.get_tools()
             self.llm_with_tools = llm.bind_tools(self.tools)
             logging.info("Retriever Initialization and bind tools completed")
@@ -202,7 +203,7 @@ class Graph():
                 else:
                     break
             tool_messages = recent_tool_messages[::-1]
-
+          
             # convert from string "[]" into [] (list)
             docs_list = ast.literal_eval(tool_messages[0].content)
 
@@ -210,12 +211,12 @@ class Graph():
             retrieval_grader = grade_documents()
 
             for doc in docs_list:
-                score = retrieval_grader.invoke({"question": messages, "document": doc["metadata"]["text"]})
+                score = retrieval_grader.invoke({"question": messages, "document": doc})
                 grade = score.binary_score
                 if grade not in ["yes", "no"]:
                     raise ValueError(f"Invalid score received: {grade}. Expected 'yes' or 'no'.")
                 if grade == "yes":
-                    relevant_docs.append(doc['metadata']['text'])
+                    relevant_docs.append(doc)
 
             if relevant_docs:
                 return {"filtered_docs":relevant_docs}

@@ -3,8 +3,6 @@ pinecone
 pinecone-text
 langchain
 langchain_community
-pypdf
 langchain_core
-pyreadline3
 llama-index
 llama-cloud-services

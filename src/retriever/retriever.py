@@ -10,16 +10,9 @@ from src.exception.exception import InsuranceAgentException
 from src.logging.logger import logging
 from src.entity.schema_entity import RetrieverInput
 from src.constant import (
-    SERVICE_NAME,
-    DENSE_EMBEDDING_DIMENSIONS,
-    DENSE_EMBEDDING_MODEL_ID,
-    NORMALIZE_FLAG,
-    ACCEPT,
-    RETRIEVE_ALPHA,
-    CONTENT_TYPE,
-    SPARSE_EMBEDDING_MODEL_ID,
     RETRIEVE_TOP_K_DOCUMENTS,
-    PINECONE_INDEX_NAMESPACE   
+    PINECONE_INDEX_NAMESPACE,
+    RERANK_MODEL 
 )
 
     
@@ -28,69 +21,94 @@ class HybridRetriever:
     Hybrid Retriever using Bedrock's hosted dense embedding model and pinecone's self 
     hosted embedding model for sparse embeddings.
     """
-    def __init__(self,pinecone_api_key,index_name) -> None:
+    def __init__(self,pinecone_api_key,dense_index_name,sparse_index_name) -> None:
         """ 
         Initialize pinecone client and aws services
         """
         try:
-            self.bedrock = boto3.client(service_name=SERVICE_NAME)
             self.pc = Pinecone(api_key=pinecone_api_key)
-            index_response = self.pc.describe_index(name=index_name)
-            dns_host = index_response["host"]
-            self.index = self.pc.Index(host=dns_host)
+            dense_index_response = self.pc.describe_index(name=dense_index_name)
+            dense_dns_host = dense_index_response["host"]
+            self.dense_index = self.pc.Index(host=dense_dns_host)
+
+            sparse_index_response = self.pc.describe_index(name=sparse_index_name)
+            sparse_dns_host = sparse_index_response["host"]
+            self.sparse_index = self.pc.Index(host=sparse_dns_host)
+           
             self.s3_client = boto3.client("s3")
         except Exception as e:
             raise InsuranceAgentException(e,sys)
-        
 
-    def generate_dense_embeddings(self,text,model_id=DENSE_EMBEDDING_MODEL_ID):
-        """ 
-        Generate dense vectors of the document text using aws bedrock 
-
-        Args:
-            text (str): text which need to be transformed into dense vectors
-            bedrock (aws object): bedrock client for model access
-            model_id (str): name of bedrock model
-        Returns:
-            embedding (List[int]): Dense vector for text data
+    def search_dense_index(self,query:str,policy_number:str):
+        """
+        Search the dense index for the given query
         """
         try:
-            body = json.dumps({
-                    "inputText": text,
-                    "dimensions": DENSE_EMBEDDING_DIMENSIONS,
-                    "normalize": NORMALIZE_FLAG
-                })
-            response = self.bedrock.invoke_model(
-                body=body,
-                modelId=model_id,
-                accept=ACCEPT,
-                contentType=CONTENT_TYPE
+            dense_results = self.dense_index.search(
+                namespace = PINECONE_INDEX_NAMESPACE,
+                query = {
+                    "top_k":RETRIEVE_TOP_K_DOCUMENTS,
+                    "inputs":{"text":query},
+                    "filter":{"policy_number":policy_number}
+                }
             )
-            response_body=json.loads(response.get("body").read())
-            response=response_body["embedding"]
-            return response
+            return dense_results
         except Exception as e:
             raise InsuranceAgentException(e,sys)
-
-    def generate_sparse_embeddings(self,text_chunk: str):
-        """ 
-        Generate sparse embeddings using pinecone hosted embedding models 
-        Args:
-            pc (Pinecone object): Pinecone client object
-            text_chunks (str): Text chunk to be embedded.
-
-        Returns:
-            EmbeddingsList: A list of sparse embeddings data 
-
+    
+    def search_sparse_index(self,query:str,policy_number:str):
+        """
+        Search the sparse index for the given query
         """
         try:
-            sparse_embeddings = self.pc.inference.embed(
-                model=SPARSE_EMBEDDING_MODEL_ID,
-                inputs=[text_chunk],
-                parameters={"input_type": "passage", "truncate": "END"}
-
+            sparse_results = self.sparse_index.search(
+                namespace = PINECONE_INDEX_NAMESPACE,
+                query = {
+                    "top_k":RETRIEVE_TOP_K_DOCUMENTS,
+                    "inputs":{"text":query},
+                    "filter":{"policy_number":policy_number}
+                }
             )
-            return sparse_embeddings
+            return sparse_results
+        except Exception as e:
+            raise InsuranceAgentException(e,sys)
+    
+    def merge_documents(self,dense_results,sparse_results):
+        """
+        Get the unique hits from two search results and return them as single array 
+        of {'id', 'chunk_text'} dicts, printing each dict on a new line.
+        """
+        try:
+            #Deduplicate by id
+            deduplicate_hits = {hit["_id"]: hit for hit in dense_results["result"]["hits"] + sparse_results["result"]["hits"]}.values()
+            # Sort by _score descending
+            sorted_hits = sorted(deduplicate_hits, key=lambda x: x['_score'], reverse=True)
+            # Transform to format for reranking
+            result = [{'_id': hit['_id'], 'chunk_text': hit['fields']['chunk_text']} for hit in sorted_hits]
+
+            return result
+        
+        except Exception as e:
+            raise InsuranceAgentException(e,sys)
+    
+    def rerank_documents(self,merge_results,query):
+        """
+        Rerank the documents based on the semantic relevance to the query
+        """
+        try:
+            result = self.pc.inference.rerank(
+                model = RERANK_MODEL,
+                query = query,
+                documents=merge_results,
+                rank_fields=["chunk_text"],
+                top_n=RETRIEVE_TOP_K_DOCUMENTS,
+                return_documents=True,
+                parameters={
+                    "truncate":"END"
+                }
+            )
+
+            return result
         except Exception as e:
             raise InsuranceAgentException(e,sys)
 
@@ -99,26 +117,20 @@ class HybridRetriever:
         Perform hybrid retrieval with metadata filtering
         """
         try:
-            dense_vector = self.generate_dense_embeddings(query)
-            logging.info("Dense embeddings are generated")
-            sparse_vector = self.generate_sparse_embeddings(query)
-            logging.info("Sparse Embeddings are generated")
+            dense_results = self.search_dense_index(query,policy_number)
+            logging.info("Dense search is completed")
+            sparse_results = self.search_sparse_index(query,policy_number)
+            logging.info("Sparse search is completed")
+            merge_results = self.merge_documents(dense_results,sparse_results)
+            logging.info("Merging of docuemnts is completed")
+            rerank_results = self.rerank_documents(merge_results,query)
 
-            #Define metadata filter
-            filter_query = {"policy_number":policy_number} if policy_number else {}
-            search_results = self.index.query(
-                namespace=PINECONE_INDEX_NAMESPACE,
-                vector = dense_vector,
-                sparse = sparse_vector,
-                top_k = RETRIEVE_TOP_K_DOCUMENTS,
-                alpha = RETRIEVE_ALPHA,
-                filter = filter_query,
-                include_metadata=True,
-                include_values=False,
-            )
+            document_list = []
+            for row in rerank_results.data:
+                document_list.append(row['document']['chunk_text'])
 
             logging.info("Search results for documents are completed")
-            return search_results["matches"]
+            return document_list
         
         except Exception as e:
             raise InsuranceAgentException(e,sys)
