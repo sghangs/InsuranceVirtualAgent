@@ -18,24 +18,24 @@ Insurance is a document-heavy industry with numerous terms and conditions, makin
 
 ### **Key Features**
 ✅ Conversational AI – Engages users in natural conversations.  
-✅ Agentic and self-RAG workflow – Dynamically adapts to user queries
+✅ Agentic and self-RAG workflow – Dynamically adapts to user queries  
 ✅ RAG System for Policies – Retrieves accurate policy information using Pinecone and LangChain.  
 ✅ Metadata Filtering – Optimizes search accuracy for insurance documents.  
 ✅ Hybrid Search Support – Combines dense and sparse embeddings for better relevance.  
 ✅ AWS-Powered Deployment – Runs efficiently on AWS Lambda and EC2.
 
 ### **Tech Stack**
-🔹 Programming Language: Python    
-🔹 Embedding Models: llama-text-embed-v2 (Pinecone-hosted), pinecone-sparse-english-v0 (Pinecone)  
-🔹 LLM Model: gpt-4o (OpenAI)  
-🔹 Indexing: Pinecone Vector DB, LangChain, LlamaParse, AWS Lambda, AWS S3  
-🔹 RAG: Pinecone, LangChain, Langgraph  
-🔹 Deployment: Docker, AWS EC2  
-🔹 Front-end: Streamlit + FastAPI  
+🔹 **Programming Language**: Python    
+🔹 **Embedding Models**: llama-text-embed-v2 (Pinecone-hosted), pinecone-sparse-english-v0 (Pinecone)  
+🔹 **LLM Model**: gpt-4o (OpenAI)  
+🔹 **Indexing**: Pinecone Vector DB, LangChain, LlamaParse, AWS Lambda, AWS S3  
+🔹 **RAG**: Pinecone, LangChain, Langgraph  
+🔹 **Deployment**: Docker, AWS EC2  
+🔹 **Front-end**: Streamlit + FastAPI  
 
 ### Application Graph
 
-![Workflow of Insurance Virtual Agent](data\Images\IVA_graph.png)
+![Workflow of Insurance Virtual Agent](data/Images/IVA_graph.png)
 
 ### **Setup Instructions**
 
