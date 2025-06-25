@@ -1,27 +1,40 @@
-from evaluation.evaluate import ModelFactory, DatasetGenerator, EvaluationPipeline
-import os
+import argparse
+import streamlit.web.bootstrap as st_wb
+from evaluation.run_evaluation import evaluate_test
+from scripts.generate_goldens import DatasetGenerator
+from src.exception.exception import InsuranceAgentException
+import sys
 
+def main():
+    """
+    Run the main.py in three modes -- Interactive, Evaluate and Generate
+    """
+    try:
+        parser = argparse.ArgumentParser(description="Run RAG System")
 
+        parser.add_argument(
+            "--mode",choices=["app","evaluate","generate"],default="app",
+            help="Choose which component to launch"
+        )
+        args = parser.parse_args()
 
-from dotenv import load_dotenv
-load_dotenv()
+        if args.mode == "app":
+            print("🚀 Launching Streamlit app...")
+            st_wb.run("app.py", [])
+        
+        elif args.mode == "evaluate":
+            print("🧪 Running DeepEval evaluation on test cases...")
+            evaluate_test()
+        
+        elif args.mode == "generate":
+            print("📄 Generating synthetic test dataset...")
+            gen_obj = DatasetGenerator()
+            gen_obj.save_dataset()
+    
+    except Exception as e:
+        raise InsuranceAgentException(e,sys)
 
 if __name__ == "__main__":
-    # Load environment variables
-    groq_api_key = os.getenv("GROQ_API_KEY")
-    
-    # Initialize model factory
-    model_factory = ModelFactory(chatgroq_api_key=groq_api_key)
-    chat_groq_llm, huggingface_embedding_model = model_factory.get_models()
+    main()
 
-    # Generate synthetic dataset
-    dataset_generator = DatasetGenerator()
-    #dataset_generator.save_dataset()
 
-    # Run evaluation pipeline
-    evaluation_pipeline = EvaluationPipeline()
-    test_cases = evaluation_pipeline.generate_testcases()
-    results = evaluation_pipeline.run_evaluation(test_cases,chat_groq_llm,huggingface_embedding_model)
-    
-    # Save evaluation results
-    evaluation_pipeline.save_results(results)

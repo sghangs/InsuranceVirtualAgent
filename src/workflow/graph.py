@@ -167,7 +167,7 @@ class Graph():
             })
             response = self.llm_with_tools.invoke(prompt)
             
-            return {"messages": [response]}
+            return {"messages": [response],"filtered_docs":[]}
 
         except Exception as e:
             raise InsuranceAgentException(e,sys)
@@ -270,7 +270,7 @@ class Graph():
                 "context": context,
                 "question": messages
             })
-            return {"messages":[response]}
+            return {"messages":[response],"filtered_docs":State["filtered_docs"]}
         
         except Exception as e:
             raise InsuranceAgentException(e,sys)
