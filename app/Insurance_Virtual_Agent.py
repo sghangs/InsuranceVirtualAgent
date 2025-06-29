@@ -6,6 +6,7 @@ from src.workflow.graph import Graph
 from src.exception.exception import InsuranceAgentException
 from langchain_core.messages import HumanMessage
 
+
 class InsuranceVirtualAgentApp():
     def __init__(self):
         """ 
@@ -18,6 +19,7 @@ class InsuranceVirtualAgentApp():
 
     def render_policy(self):
         try:
+            
             st.set_page_config(page_title="Insurance Virtual Agent", layout="centered")
             st.title("🏦 Insurance Virtual Agent")
 

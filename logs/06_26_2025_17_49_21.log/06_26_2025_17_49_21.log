@@ -1,0 +1,2 @@
+[ 2025-06-26 17:49:27,211 ] 1352 botocore.credentials - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+[ 2025-06-26 17:49:28,444 ] 80 root - INFO - Retriever Initialization and bind tools completed

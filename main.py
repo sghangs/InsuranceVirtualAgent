@@ -5,6 +5,8 @@ from scripts.generate_goldens import DatasetGenerator
 from src.exception.exception import InsuranceAgentException
 import sys
 
+
+
 def main():
     """
     Run the main.py in three modes -- Interactive, Evaluate and Generate
@@ -20,7 +22,7 @@ def main():
 
         if args.mode == "app":
             print("🚀 Launching Streamlit app...")
-            st_wb.run("app.py", [])
+            st_wb.run("app/Insurance_Virtual_Agent.py","",[], flag_options={})
         
         elif args.mode == "evaluate":
             print("🧪 Running DeepEval evaluation on test cases...")

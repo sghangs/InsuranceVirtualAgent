@@ -37,12 +37,12 @@ class EvaluationPipeline:
         rag_obj = RagPipeline()
         test_cases = []
         for golden in goldens:
-            res,text_chunks = rag_obj.execute_rag(golden.input)
+            res,text_chunks = rag_obj.execute_rag(golden["input"])
             test_case = LLMTestCase(
-                input=golden.input,
+                input=golden["input"],
                 actual_output=res,
                 retrieval_context=text_chunks,
-                expected_output=golden.expected_output,
+                expected_output=golden["expected_output"],
             )
             test_cases.append(test_case)
 
@@ -73,17 +73,23 @@ class EvaluationPipeline:
         version_dir = f"data/evaluation_results/{timestamp}"
         os.makedirs(version_dir, exist_ok=True)
 
+        res1,res2=results
+        _,res3=res1
         #Extracting test results in list
         rows = []
-        for case in results:
-            rows.append({
-                "Input": case.input,
-                "Expected Output": case.expected_output,
-                "Actual Output": case.actual_output,
-                "Score": case.score,
-                "Passed": case.passed,
-                "Reason": case.reason
-            })
+        for case in res3:
+            for met in case.metrics_data:
+                rows.append({
+                    "TestCase":case.name,
+                    "Input": case.input,
+                    "Expected Output": case.expected_output,
+                    "Actual Output": case.actual_output,
+                    "Success":case.success,
+                    "Matrics": met.name,
+                    "Score": met.score,
+                    "Reason": met.reason,
+                    "Cost":met.evaluation_cost
+                })
 
         #Creating csv file if not exists
         if not os.path.exists(os.path.dirname(f"{version_dir}/results.csv")):
@@ -108,21 +114,23 @@ class EvaluationPipeline:
             f.write("# RAG Evaluation Report\n")
             f.write(f"**Run Time**: {timestamp}\n")
             f.write(f"**Dataset**: {version_dir}/results.md\n")
-            f.write(f"**LLM Model**: {LLM_MODEL_ID}\n\n")
+            f.write(f"**LLM Model**: {LLM_MODEL_ID} \n\n")
 
-            for i, case in enumerate(rows, 1):
+            for i, case in enumerate(res3, 1):
                 f.write(f"### Test Case {i}\n")
-                f.write(f"- **Input**: {case['Input']}\n")
-                f.write(f"- **Expected**: {case['Expected Output']}\n")
-                f.write(f"- **Actual**: {case['Actual Output']}\n")
-                f.write(f"- **Score**: {case['Score']}\n")
-                f.write(f"- **Passed**: {case['Passed']}\n")
-                f.write(f"- **Reason**: {case['Reason']}\n\n")
+                f.write(f"- **Input**: {case.input}\n")
+                f.write(f"- **Expected**: {case.expected_output}\n")
+                f.write(f"- **Actual**: {case.actual_output}\n")
+                f.write(f"- **Success**: {case.success}\n")
+                for met in case.metrics_data:
+                    f.write(f"#### Metrics Data \n")
+                    f.write(f"- **Metrics**: {met.name}\n")
+                    f.write(f"- **Score**: {met.score}\n")
+                    f.write(f"- *Cost**: {met.evaluation_cost:.4f}$\n\n")
+                    f.write(f"- **Reason**: {met.reason}\n\n")
 
         print("✅ Evaluation completed.")
-        avg_score = sum([c.score for c in results]) / len(results)
-        print(f"📊 Average Score: {avg_score:.2f}")
-        print(f"🟢 Passed {sum(c.passed for c in results)}/{len(results)} test cases")
+        print(f"🟢 Passed {sum(c.success for c in res3)}/{len(res3)} test cases")
 
 
 

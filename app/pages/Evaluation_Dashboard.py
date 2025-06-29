@@ -29,15 +29,15 @@ with open(json_path) as f:
 st.markdown(f"**Run Time:** `{selected_run}`")
 col1, col2, col3 = st.columns(3)
 col1.metric("🧪 Total Cases", len(df))
-col2.metric("✅ Passed", df['Passed'].sum())
+col2.metric("✅ Passed", df['Success'].sum())
 col3.metric("📈 Avg Score", round(df['Score'].mean(), 3))
 
 # --- Filters ---
 show_failures = st.checkbox("Show only failed cases", value=False)
-filtered_df = df[~df['Passed']] if show_failures else df
+filtered_df = df[~df['Success']] if show_failures else df
 
 # --- Table View ---
-st.dataframe(filtered_df[["Input", "Score", "Passed", "Reason"]], use_container_width=True)
+st.dataframe(filtered_df[["Input", "Score", "Success", "Reason"]], use_container_width=True)
 
 # --- Detailed Viewer ---
 st.subheader("🔍 Inspect a Test Case")
@@ -50,5 +50,5 @@ st.markdown("**Expected Output:**")
 st.code(case["Expected Output"])
 st.markdown("**Actual Output:**")
 st.code(case["Actual Output"])
-st.markdown(f"**Score:** {case['Score']} | **Passed:** {case['Passed']}")
+st.markdown(f"**Score:** {case['Score']} | **Passed:** {case['Success']}")
 st.markdown(f"**Reason:** {case['Reason']}")

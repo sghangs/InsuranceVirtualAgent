@@ -1,0 +1,33 @@
+# RAG Evaluation Report
+**Run Time**: 2025-06-26_23-28-12
+**Dataset**: ../../data/evaluation_results/2025-06-26_23-28-12/results.md
+**LLM Model**: gpt 
+
+### Test Case 1
+- **Input**: What steps should I take if my home assistance cover is unavailable during an emergency? Does my homeowner insurance policy provide any alternative coverage for such situations?
+- **Expected**: Detail answer on what covered/not covered for that accident based on policy, and make sure it is concise and straight to the point, using supporting information in context.
+
+If your home assistance cover is unavailable during an emergency, you can phone the domestic emergency helpline on 01737 815927. AXA Assistance (UK) Limited will provide a referral to the nearest suitable tradesperson. You will be responsible for paying the tradesperson’s fees, but if the incident is covered by your homeowner insurance policy, you may submit a claim in the usual way. The homeowner insurance policy does not cover the tradesperson’s fees as it is a referral service; however, reimbursement may be possible if the incident aligns with policy coverage.
+- **Actual**: If your home assistance cover is unavailable during an emergency, you can still seek help through your homeowner insurance policy. Here's what you can do:
+
+1. **Contact the Domestic Emergency Helpline**: If you have not taken home assistance cover, you should call the domestic emergency helpline at 01737 815927. AXA Assistance (UK) Limited will connect you with the nearest suitable tradesperson.
+
+2. **Liability and Payment**: Since this is a referral service, any agreement between you and the tradesperson is independent of AXA Assistance. You will be responsible for agreeing on the scope, quality, and cost of the work with the tradesperson.
+
+3. **Submit a Claim**: If the incident is covered by your homeowner insurance policy, you may submit a claim in the usual way for reimbursement or coverage of certain costs related to the emergency.
+
+4. **Emergency Coverage under Home Insurance**: Your homeowner insurance policy provides alternative coverage:
+   - They will manage your claim and potentially arrange for an authorized contractor to address the emergency.
+   - They can organize and pay up to £1,000 per claim for emergency or permanent repairs.
+   - If your home becomes uninhabitable due to a covered event, they will contribute up to £250 towards accommodation and transport costs.
+   - In cases of no heating, they offer options for temporary heating solutions.
+
+Make sure to follow up with your insurer for specific procedures on how to manage the emergency situation under your homeowner insurance policy.
+- **Success**: True
+#### Metrics Data 
+- **Metrics**: Answer Relevancy
+- **Score**: 0.6666666666666666
+- *Cost**: 0.0091$
+
+- **Reason**: The score is 0.67 because while the response includes some relevant information about emergency contacts and services, it fails to directly address the specific question about alternative coverage under the homeowner insurance policy. The inclusion of unrelated details about tradespeople and AXA Assistance services detracts from the focus on insurance coverage, preventing a higher score.
+

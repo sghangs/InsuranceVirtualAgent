@@ -1,0 +1,34 @@
+[ 2025-06-26 00:57:34,560 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
+[ 2025-06-26 00:57:37,669 ] 1352 botocore.credentials - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+[ 2025-06-26 00:57:38,244 ] 80 root - INFO - Retriever Initialization and bind tools completed

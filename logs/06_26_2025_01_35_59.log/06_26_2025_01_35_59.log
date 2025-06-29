@@ -1,0 +1,164 @@
+[ 2025-06-26 01:36:04,856 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
+[ 2025-06-26 01:36:08,165 ] 1352 botocore.credentials - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+[ 2025-06-26 01:36:09,266 ] 80 root - INFO - Retriever Initialization and bind tools completed
+[ 2025-06-26 01:36:56,173 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
+[ 2025-06-26 01:37:30,115 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
+[ 2025-06-26 01:37:30,150 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-06-26 01:37:38,949 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-06-26 01:38:06,107 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
+[ 2025-06-26 01:39:37,827 ] 1858 asyncio - ERROR - Exception in callback AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518
+handle: <Handle AppSession._on_scriptrunner_event.<locals>.<lambda>() at C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py:518>
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\web\bootstrap.py", line 347, in run
+    if asyncio.get_running_loop().is_running():
+       ~~~~~~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: no running event loop
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 518, in <lambda>
+    lambda: self._handle_scriptrunner_event_on_event_loop(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sender,
+        ^^^^^^^
+    ...<6 lines>...
+        pages,
+        ^^^^^^
+    )
+    ^
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 612, in _handle_scriptrunner_event_on_event_loop
+    msg = self._create_new_session_message(
+        page_script_hash, fragment_ids_this_run, pages
+    )
+  File "C:\Users\sunny\Desktop\Projects\InsuranceVirtualAgent\venv\Lib\site-packages\streamlit\runtime\app_session.py", line 756, in _create_new_session_message
+    imsg.is_hello = self._script_data.is_hello
+    ^^^^^^^^^^^^^
+TypeError: 'str' object cannot be interpreted as an integer
