@@ -6,11 +6,8 @@ langchain_community
 pypdf
 langchain_core
 pyreadline3
-ipython
 langgraph
-langchain_groq
 langchain_openai
-streamlit
 awscli
 deepeval
 chromadb
@@ -20,5 +17,3 @@ llama-index
 llama-cloud-services
 fastapi
 uvicorn
-
-

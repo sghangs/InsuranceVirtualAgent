@@ -3,7 +3,7 @@ from src.exception.exception import InsuranceAgentException
 import sys
 
 
-def evaluate_test():
+async def evaluate_test():
     """
     Run the entire evaluation pipeline and save the results 
     """

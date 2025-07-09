@@ -1,0 +1,81 @@
+[ 2025-07-08 23:39:43,216 ] 1352 botocore.credentials - INFO - Found credentials in shared credentials file: ~/.aws/credentials
+[ 2025-07-08 23:39:43,432 ] 80 root - INFO - Retriever Initialization and bind tools completed
+[ 2025-07-08 23:39:43,436 ] 55 insurance_virtual_agent - INFO - Starting Insurance Virtual Agent API...
+[ 2025-07-09 00:59:27,059 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 00:59:28,816 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 00:59:55,865 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 00:59:57,061 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:00:22,232 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 01:00:23,788 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:34,727 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 01:01:35,571 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:38,235 ] 121 root - INFO - Dense search is completed
+[ 2025-07-09 01:01:40,077 ] 123 root - INFO - Sparse search is completed
+[ 2025-07-09 01:01:40,077 ] 125 root - INFO - Merging of docuemnts is completed
+[ 2025-07-09 01:01:40,979 ] 132 root - INFO - Search results for documents are completed
+[ 2025-07-09 01:01:40,981 ] 180 root - INFO - Entering grade_documents...
+[ 2025-07-09 01:01:41,920 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:42,841 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:43,738 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:43,741 ] 248 root - INFO - Entering generate_answer...
+[ 2025-07-09 01:01:47,450 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:48,576 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:01:50,623 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:21,428 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 01:02:24,109 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:24,724 ] 121 root - INFO - Dense search is completed
+[ 2025-07-09 01:02:25,041 ] 123 root - INFO - Sparse search is completed
+[ 2025-07-09 01:02:25,041 ] 125 root - INFO - Merging of docuemnts is completed
+[ 2025-07-09 01:02:25,647 ] 132 root - INFO - Search results for documents are completed
+[ 2025-07-09 01:02:25,648 ] 180 root - INFO - Entering grade_documents...
+[ 2025-07-09 01:02:26,464 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:27,898 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:28,716 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:28,719 ] 248 root - INFO - Entering generate_answer...
+[ 2025-07-09 01:02:31,515 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:32,096 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:02:33,326 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:20,309 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 01:03:21,352 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:21,965 ] 121 root - INFO - Dense search is completed
+[ 2025-07-09 01:03:22,580 ] 123 root - INFO - Sparse search is completed
+[ 2025-07-09 01:03:22,580 ] 125 root - INFO - Merging of docuemnts is completed
+[ 2025-07-09 01:03:23,195 ] 132 root - INFO - Search results for documents are completed
+[ 2025-07-09 01:03:23,196 ] 180 root - INFO - Entering grade_documents...
+[ 2025-07-09 01:03:25,580 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:26,471 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:27,188 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:27,191 ] 282 root - INFO - Entering rewrite_query...
+[ 2025-07-09 01:03:28,724 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 01:03:28,726 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 01:03:32,615 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:46:05,298 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 16:46:06,889 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:46:24,332 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 16:46:25,727 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:07,786 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 16:48:08,763 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:10,799 ] 121 root - INFO - Dense search is completed
+[ 2025-07-09 16:48:12,748 ] 123 root - INFO - Sparse search is completed
+[ 2025-07-09 16:48:12,748 ] 125 root - INFO - Merging of docuemnts is completed
+[ 2025-07-09 16:48:13,797 ] 132 root - INFO - Search results for documents are completed
+[ 2025-07-09 16:48:13,799 ] 180 root - INFO - Entering grade_documents...
+[ 2025-07-09 16:48:15,112 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:15,919 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:18,388 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:18,401 ] 248 root - INFO - Entering generate_answer...
+[ 2025-07-09 16:48:23,099 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:24,020 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:26,171 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:26,181 ] 248 root - INFO - Entering generate_answer...
+[ 2025-07-09 16:48:31,292 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:32,262 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:48:34,056 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:56:42,646 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 16:56:43,942 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 16:56:50,799 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 16:56:51,930 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 17:42:51,681 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 17:42:54,671 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[ 2025-07-09 17:44:11,138 ] 147 root - INFO - Entering into generate_toolcall_or_respond...
+[ 2025-07-09 17:44:14,440 ] 1025 httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
