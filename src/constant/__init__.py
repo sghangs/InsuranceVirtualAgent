@@ -28,4 +28,4 @@ MESSAGES_COUNT:int = 6
 """
 Defining common constant for front end
 """
-RAG_ENDPOINTS:str = "http://localhost:8080/rag"
+RAG_ENDPOINTS:str = "http://0.0.0.0:8080/rag"
