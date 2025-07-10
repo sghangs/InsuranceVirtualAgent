@@ -11,9 +11,6 @@ langchain_openai
 awscli
 deepeval
 chromadb
-langchain_huggingface
 faiss-cpu
-llama-index
-llama-cloud-services
 fastapi
 uvicorn

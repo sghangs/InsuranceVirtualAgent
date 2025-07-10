@@ -15,4 +15,4 @@ faiss-cpu
 llama-index
 llama-cloud-services
 fastapi
-uvicorn
+
