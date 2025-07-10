@@ -1,17 +1,16 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
 # Copy main.py and requirements.txt from backend directory
-COPY main.py .
 COPY requirements.txt .
 
 # Copy src directory from parent directory
-COPY ../src ./src
-COPY ../scripts ./scripts
+COPY . .
 
-# Add environment path for imports
-ENV PYTHONPATH=/app
+
+# Expose FastAPI port
+EXPOSE 8080
 
 RUN pip install --no-cache-dir -r requirements.txt
 

@@ -9,7 +9,8 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PINECONE_API_KEY=${PINECONE_API_KEY}
-  
+    working_dir: /app
+    
     restart: always
 
   frontend:
@@ -20,3 +21,5 @@ services:
     depends_on:
       - backend
     restart: always
+    working_dir: /app
+    
