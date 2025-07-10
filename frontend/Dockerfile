@@ -11,7 +11,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all files from the current directory to the container's /app directory
-COPY . .
+COPY ../src ./src
+COPY app.py .
+COPY ../scripts ./scripts
 
 # Set the default command to run the Streamlit app on port 8501 and listen on all interfaces
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
