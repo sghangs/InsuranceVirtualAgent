@@ -12,7 +12,7 @@ from src.pipeline.rag import RagPipeline
 from evaluation.run_evaluation import evaluate_test
 from scripts.generate_goldens import DatasetGenerator
 from src.exception.exception import InsuranceAgentException
-from src.logging.logger import logging
+from src.loggers.logger import logging
 from contextlib import asynccontextmanager
 from uvicorn import run as app_run
 

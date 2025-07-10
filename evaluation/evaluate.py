@@ -1,7 +1,7 @@
 from evaluation.deepeval_components.synthesizer import synthesize
 from src.constant import LLM_MODEL_ID
 from src.exception.exception import InsuranceAgentException
-from src.logging.logger import logging
+from src.loggers.logger import logging
 import os
 import sys
 import json

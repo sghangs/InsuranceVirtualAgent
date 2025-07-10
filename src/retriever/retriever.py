@@ -7,7 +7,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from langchain_core.tools import StructuredTool
 from src.exception.exception import InsuranceAgentException
-from src.logging.logger import logging
+from src.loggers.logger import logging
 from src.entity.schema_entity import RetrieverInput
 from src.constant import (
     RETRIEVE_TOP_K_DOCUMENTS,

@@ -2,7 +2,7 @@ import sys
 import traceback
 import datetime
 from typing import Optional, Any, Dict
-from src.logging import logger
+from src.loggers import logger
 
 class InsuranceAgentException(Exception):
     """

@@ -39,7 +39,7 @@ from src.retriever.retriever import HybridRetriever
 from src.llm import llm
 from src.constant import PINECONE_DENSE_INDEX_NAME,PINECONE_SPARSE_INDEX_NAME
 from src.exception.exception import InsuranceAgentException
-from src.logging.logger import logging
+from src.loggers.logger import logging
 from src.constant import MESSAGES_COUNT
 from src.prompts.prompts import (
     generate_input_prompt,

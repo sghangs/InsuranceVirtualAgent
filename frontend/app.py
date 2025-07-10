@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import uuid
-from src.logging.logger import logging
+from src.loggers.logger import logging
 import requests
 import streamlit as st
 from src.workflow.graph import Graph

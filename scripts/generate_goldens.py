@@ -1,7 +1,7 @@
 from evaluation.deepeval_components.synthesizer import synthesize
 from src.exception.exception import InsuranceAgentException
 import sys
-from src.logging.logger import logging
+from src.loggers.logger import logging
 
 class DatasetGenerator:
     """Generates synthetic queries and golden answers using DeepEval Synthesizer."""

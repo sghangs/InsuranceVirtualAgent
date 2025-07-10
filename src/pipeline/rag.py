@@ -2,7 +2,7 @@ from src.workflow.graph import Graph
 import uuid
 import sys
 from langchain_core.messages import HumanMessage
-from src.logging.logger import logging
+from src.loggers.logger import logging
 from src.exception.exception import InsuranceAgentException
 
 
