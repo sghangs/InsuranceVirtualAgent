@@ -7,7 +7,6 @@ import operator
 import datetime
 import uuid
 import ast
-from IPython.display import Image, display
 import boto3
 import json
 
