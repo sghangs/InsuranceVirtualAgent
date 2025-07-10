@@ -1,6 +1,6 @@
 # Backend Dockerfile for FastAPI app (main.py) with shared src/ import support
 
-FROM python:3.13-slim
+FROM python:3.10-slim
 
 # Set working directory
 WORKDIR /app
