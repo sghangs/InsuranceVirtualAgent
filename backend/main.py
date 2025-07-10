@@ -9,18 +9,17 @@ from src.pipeline.rag import RagPipeline
 from evaluation.run_evaluation import evaluate_test
 from scripts.generate_goldens import DatasetGenerator
 from src.exception.exception import InsuranceAgentException
-from src.logging.logger import logging
+from src.logging.logging import logging
 from contextlib import asynccontextmanager
 from uvicorn import run as app_run
 
-logger = logging.getLogger("insurance_virtual_agent")
 
 # Lifespan context replacing deprecated on_event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting Insurance Virtual Agent API...")
+    logging.info("Starting Insurance Virtual Agent API...")
     yield
-    logger.info("Shutting down Insurance Virtual Agent API...")
+    logging.info("Shutting down Insurance Virtual Agent API...")
 
 app = FastAPI(
     title="Insurance Virtual Agent API",
@@ -66,10 +65,10 @@ async def run_rag(rag_input: RagInput):
         )
         return {"message": response}
     except InsuranceAgentException as e:
-        logger.error(f"InsuranceAgentException: {e}")
+        logging.error(f"InsuranceAgentException: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.exception("Unhandled exception in /rag endpoint")
+        logging.exception("Unhandled exception in /rag endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/evaluate", response_model=MessageResponse)
@@ -78,7 +77,7 @@ async def run_evaluation():
         result = await evaluate_test()
         return {"message": result}
     except Exception as e:
-        logger.exception("Unhandled exception in /evaluate endpoint")
+        logging.exception("Unhandled exception in /evaluate endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/generate", response_model=MessageResponse)
@@ -88,13 +87,13 @@ async def generate_dataset():
         data.save_dataset()
         return {"message": "Synthetic Dataset generated successfully"}
     except Exception as e:
-        logger.exception("Unhandled exception in /generate endpoint")
+        logging.exception("Unhandled exception in /generate endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Global exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.exception(f"Unhandled exception: {exc}")
+    logging.exception(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"message": "Internal server error"}
@@ -103,7 +102,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # InsuranceAgentException handler
 @app.exception_handler(InsuranceAgentException)
 async def insurance_agent_exception_handler(request: Request, exc: InsuranceAgentException):
-    logger.error(f"InsuranceAgentException: {exc}")
+    logging.error(f"InsuranceAgentException: {exc}")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"message": str(exc)}
