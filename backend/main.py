@@ -1,5 +1,8 @@
 import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,9 +12,10 @@ from src.pipeline.rag import RagPipeline
 from evaluation.run_evaluation import evaluate_test
 from scripts.generate_goldens import DatasetGenerator
 from src.exception.exception import InsuranceAgentException
-from src.logging.logging import logging
+from src.logging.logger import logging
 from contextlib import asynccontextmanager
 from uvicorn import run as app_run
+
 
 
 # Lifespan context replacing deprecated on_event
