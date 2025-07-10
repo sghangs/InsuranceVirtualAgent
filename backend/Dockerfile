@@ -19,7 +19,8 @@ COPY backend/ .
 
 # Copy shared src directory from project root
 COPY src/ ./src/
-
+COPY evaluation/ ./evaluation/
+COPY scripts/ ./scripts/
 # Set PYTHONPATH so FastAPI app can import from src
 ENV PYTHONPATH=/app:/app/src
 
