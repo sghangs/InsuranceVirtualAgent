@@ -14,3 +14,4 @@ chromadb
 faiss-cpu
 fastapi
 uvicorn
+pandas
