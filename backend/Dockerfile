@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy only needed directories
 COPY main.py .
-COPY ../src ./src
+COPY src ./src
 
 # Add environment path for imports
 ENV PYTHONPATH=/app

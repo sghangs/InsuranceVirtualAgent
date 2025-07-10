@@ -111,4 +111,4 @@ async def insurance_agent_exception_handler(request: Request, exc: InsuranceAgen
 
 # For local development only. Use gunicorn/uvicorn in production.
 if __name__ == "__main__":
-    app_run("api.main:app", host="0.0.0.0", port=8080, reload=False)
+    app_run("backend.main:app", host="0.0.0.0", port=8080, reload=False)

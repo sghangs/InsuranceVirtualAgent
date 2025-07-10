@@ -2,7 +2,8 @@ version: "3.9"
 
 services:
   backend:
-    build: ./api
+    build: ./backend
+    image: insurance-virtual-agent-backend:latest
     ports:
       - "8080:8080"
     environment:
@@ -13,6 +14,7 @@ services:
 
   frontend:
     build: ./frontend
+    image: insurance-virtual-agent-frontend:latest
     ports:
       - "8501:8501"
     depends_on:
