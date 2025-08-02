@@ -12,14 +12,16 @@ class InsuranceAgentException(Exception):
     def __init__(
         self,
         error_message: str,
-        error_details: sys,
+        error_obj: Exception = None,
         context: Optional[Dict[str, Any]] = None
     ):
         super().__init__(error_message)
         self.error_message = error_message
         self.context = context or {}
         self.timestamp = datetime.datetime.utcnow().isoformat()
-        exc_type, exc_obj, exc_tb = error_details.exc_info()
+        
+        # Use sys.exc_info() to get exception details
+        exc_type, exc_obj, exc_tb = sys.exc_info()
         self.exc_type = exc_type.__name__ if exc_type else "Unknown"
         self.lineno = exc_tb.tb_lineno if exc_tb else None
         self.file_name = exc_tb.tb_frame.f_code.co_filename if exc_tb else None
@@ -48,6 +50,6 @@ if __name__ == "__main__":
     except Exception as e:
         raise InsuranceAgentException(
             "Division by zero in main block",
-            sys,
+            error_obj=e,
             context={"operation": "1/0", "user": "test_user"}
         )

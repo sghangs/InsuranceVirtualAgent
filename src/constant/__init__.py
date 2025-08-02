@@ -23,9 +23,26 @@ Defining common constant for graph
 LLM_MODEL_ID:str = "gpt-4o"
 PINECONE_DENSE_INDEX_NAME:str = "insurance-virtual-agent-dense"
 PINECONE_SPARSE_INDEX_NAME:str = "insurance-virtual-agent-sparse"
-MESSAGES_COUNT:int = 6
+MESSAGES_COUNT:int = 3
 
 """
 Defining common constant for front end
 """
-RAG_ENDPOINTS:str = "http://34.229.162.28:8080/rag"
+RAG_ENDPOINTS:str = "http://localhost:8080/rag"
+SIGNUP_ENDPOINT:str = "http://localhost:8080/signup"
+TOKEN_ENDPOINT:str = "http://localhost:8080/token"
+ME_ENDPOINT:str = "http://localhost:8080/me"
+
+"""
+Defining common constant for long term memory
+"""
+MIN_CONN:int = 1
+MAX_CONN:int = 5
+
+TRIVIAL_MESSAGES = {"hello", "hi", "yes", "no", "ok", "thanks", "thank you", "okay", "sure", "goodbye", "bye", "see you", "later", "welcome", "help", "please", "sorry"}
+
+ALGORITHM:str = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES:int = 60 * 1  # 1 hour
+
+TOP_K_CONVERSATIONS:int = 2
+SIMILARITY_THRESHOLD:float = 0.75

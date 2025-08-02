@@ -15,5 +15,14 @@ faiss-cpu
 fastapi
 uvicorn
 pandas
+psycopg[binary]
 psycopg2-binary
+psycopg_pool
 pgvector
+passlib[bcrypt]
+bcrypt
+python-jose
+python-multipart
+asyncpg
+redis[async]
+langgraph-checkpoint-redis

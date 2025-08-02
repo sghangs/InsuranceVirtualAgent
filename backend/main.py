@@ -1,26 +1,36 @@
 import sys
 import os
+import asyncio
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, Request, status, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Annotated
+
+from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+from session import get_db
 from src.pipeline.rag import RagPipeline
 from evaluation.run_evaluation import evaluate_test
 from scripts.generate_goldens import DatasetGenerator
 from src.exception.exception import InsuranceAgentException
 from src.loggers.logger import logging
+from fastapi.security import OAuth2PasswordRequestForm
+from jwt_utils import create_access_token, verify_password, get_password_hash, get_user_by_email, get_user_by_id
+from jwt_utils import get_current_user
+
+from schemas import RagInput, MessageResponse, SignupForm, LoginForm , UserOut, Token
+from models import User
 from contextlib import asynccontextmanager
 from uvicorn import run as app_run
-
-
 
 # Lifespan context replacing deprecated on_event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    app.state.pipeline = await RagPipeline.create()
     logging.info("Starting Insurance Virtual Agent API...")
     yield
     logging.info("Shutting down Insurance Virtual Agent API...")
@@ -43,29 +53,53 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Request and Response Schemas
-class RagInput(BaseModel):
-    session_id: Annotated[str, Field(..., description="Session ID for tracking user session")]
-    query: Annotated[str, Field(..., description="Input query for the rag")]
-    policy_number: Annotated[str, Field(..., description="Policy number")]
 
-class MessageResponse(BaseModel):
-    message: str
 
-# Initialize the RAG pipeline object
-rag_obj = RagPipeline()
-
+# Health check endpoint
 @app.get("/health", response_model=MessageResponse)
 async def check_health():
     return {"message": "OK"}
 
+# signup endpoint
+@app.post("/signup", response_model=UserOut)
+async def signup(form: SignupForm, db=Depends(get_db)):
+    if await get_user_by_email(db, form.email):
+        raise HTTPException(status_code=400, detail="Email already exists")
+    user = User(
+        name=form.name,
+        email=form.email,
+        password_hash=get_password_hash(form.password)
+    )
+    await db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return UserOut(user_id=str(user.user_id), name=user.name, email=user.email)
+
+# Get access token 
+@app.post("/token", response_model=Token)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+    user = await get_user_by_email(db, form_data.username)
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+    access_token = create_access_token(data={"sub": str(user.user_id)})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# Get current user endpoint
+@app.get("/me", response_model=UserOut)
+def read_users_me(current_user: User = Depends(get_current_user)):
+    return UserOut(user_id=str(current_user.user_id), name=current_user.name, email=current_user.email)
+
+# RAG endpoint
 @app.post("/rag", response_model=MessageResponse)
-async def run_rag(rag_input: RagInput):
+async def run_rag(rag_input: RagInput,current_user: User = Depends(get_current_user)):
     try:
-        response, context = await rag_obj.execute_rag(
+        pipeline= app.state.pipeline
+        user_id = str(current_user.user_id)
+        response, context = await pipeline.execute_rag(
             user_input=rag_input.query,
             policy_number=rag_input.policy_number,
-            session_id=rag_input.session_id
+            session_id=rag_input.session_id,
+            user_id=user_id
         )
         return {"message": response}
     except InsuranceAgentException as e:
@@ -75,6 +109,7 @@ async def run_rag(rag_input: RagInput):
         logging.exception("Unhandled exception in /rag endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+# Evaluation endpoint
 @app.get("/evaluate", response_model=MessageResponse)
 async def run_evaluation():
     try:
@@ -84,6 +119,7 @@ async def run_evaluation():
         logging.exception("Unhandled exception in /evaluate endpoint")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+# Dataset generation endpoint
 @app.get("/generate", response_model=MessageResponse)
 async def generate_dataset():
     try:

@@ -11,23 +11,31 @@ class RagPipeline():
     Implement RAG pipeline to extract the retrieved documents and response.
     """
 
-    def __init__(self):
+    def __init__(self, graph_obj, graph):
         """
         Initialize graph object and build the graph.
-        This graph will be used to execute the RAG application.
         """
-        self.graph_obj=Graph()
-        self.graph = self.graph_obj.build_graph()
+        self.graph_obj = graph_obj
+        self.graph = graph
 
-    async def execute_rag(self,user_input,policy_number,session_id):
+    @classmethod
+    async def create(cls):
+        """
+        Async factory to initialize RagPipeline with an async build_graph.
+        """
+        graph_obj = Graph()
+        graph = await graph_obj.build_graph()
+        return cls(graph_obj, graph)
+
+    async def execute_rag(self,user_input,policy_number,session_id,user_id):
         """
         execute the rag application with provided input to return the response and context
         """
         try:
             message = [HumanMessage(content=user_input)]
-            config = {"configurable":{"thread_id":session_id}}
+            config = {"configurable":{"thread_id":session_id,"user_id":user_id}}
             
-            response = self.graph.invoke({"messages":message,"policy_number":policy_number},config)
+            response = await self.graph.ainvoke({"messages":message,"policy_number":policy_number},config)
             response_content = response["messages"][-1].content
             context = response["filtered_docs"]
 

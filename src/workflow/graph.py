@@ -25,11 +25,14 @@ from langchain.tools import Tool
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables.config import RunnableConfig
 
 #langgraph imports
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import ToolNode,tools_condition
+from langgraph.checkpoint.redis import AsyncRedisSaver
+
 
 from pinecone import Pinecone
 
@@ -43,7 +46,8 @@ from src.constant import MESSAGES_COUNT
 from src.prompts.prompts import (
     generate_input_prompt,
     generate_response_chain,
-    generate_rewrite_chain
+    generate_rewrite_chain,
+    user_profile_prompt
 )
 from src.prompts.graders import (
     grade_answer,
@@ -51,6 +55,14 @@ from src.prompts.graders import (
     grade_documents
 )
 
+from src.longmemory.profile import get_user_profile
+from src.longmemory.embedding_utility import should_embed,get_embedding
+from src.longmemory.memory import retrieve_similar_conversations,store_summary
+from src.longmemory.profile_extraction import extract_profile_updates
+from src.longmemory.profile import upsert_user_profile
+from src.shortmemory.config import REDIS_URL
+from src.shortmemory.memory import RedisMemoryManager
+from src.shortmemory.redis_checkpointer import RedisCheckpointer
 #load environment variables
 from dotenv import load_dotenv
 load_dotenv()
@@ -58,9 +70,12 @@ load_dotenv()
 
 # State schema for graph
 class State(MessagesState):
-    policy_number : str
-    filtered_docs : List[str]
-    summary : str
+    policy_number : Annotated[str, Field(description="Insurance policy number associated with the user")]
+    filtered_docs : Annotated[List[Document], Field(description="List of filtered documents relevant to the user query")]
+    summary : Annotated[str, Field(description="Summary of the conversation")]
+    user_id : Annotated[str, Field(description="Unique identifier for the user")]
+    user_profile : Annotated[Dict[str, str], Field(description="User profile information")]
+    long_term_context : Annotated[str, Field(description="Long-term context for the user")]
 
 
 class Graph():
@@ -82,7 +97,7 @@ class Graph():
             raise InsuranceAgentException(e,sys)
 
 
-    def summarize_conversation(self,State):
+    async def summarize_conversation(self,State,config: RunnableConfig) -> Dict[str, List[AnyMessage]]:
         """
         summarize the converstations 
         """
@@ -107,6 +122,16 @@ class Graph():
 
             messages = conversation_messages + [HumanMessage(content=summary_message)]
             response = llm.invoke(messages)
+            print("Response from summarization:", response.content)
+
+            thread_id = config["configurable"]["thread_id"]
+            # Store the summary as long term memory in the database
+            await store_summary(
+                policy_number=State["policy_number"],
+                user_id=State["user_id"],
+                summary=response.content,
+                thread_id=thread_id
+            )
 
             # Delete all but keep the one most recent messages
             delete_messages = [RemoveMessage(id=m.id) for m in conversation_messages[:-1]]
@@ -137,14 +162,27 @@ class Graph():
         except Exception as e:
             raise InsuranceAgentException(e,sys)
 
-     
-    def generate_toolcall_or_respond(self,State):
+
+    async def generate_toolcall_or_respond(self,State: dict, config: RunnableConfig) -> Dict[str, List[AnyMessage]]:
         """ 
         Generate tool call for the retriever tool based on the user query and policy number.
         or respond to the user directly if the query is not related to any policy.
         """
         logging.info("Entering into generate_toolcall_or_respond...")
         try:
+            # Get user_id from the config
+            State["user_id"] = config["configurable"]["user_id"]
+            #extract profile updates from the last message    
+            profile_updates = await extract_profile_updates(State["messages"][-1].content)
+            print("Profile updates extracted:", profile_updates)
+            if profile_updates:
+                # Update user profile with the extracted information
+                await upsert_user_profile(State["user_id"], profile_updates)
+
+            # Get user profile information
+            State["user_profile"] = await get_user_profile(State["user_id"])
+        
+
             # Get summary if it exists
             summary = State.get("summary", "")
 
@@ -159,24 +197,45 @@ class Graph():
             else:
                 messages = conversation_messages
 
+            # Get the embedding for the last user message if it is not trivial
+            if should_embed(messages[-1].content):
+                # retreive similar conversations of the user based on the last message and policy number    
+                long_term_conversations= await retrieve_similar_conversations(State["user_id"], messages[-1].content, State["policy_number"])
+                State["long_term_context"] = "\n".join([f"{msg['user_id']} ({msg['created_at']}): {msg['message']}" for msg in long_term_conversations])
+            else:
+                State["long_term_context"] = ""
+
+            # Get user profile information as a string
+            user_profile_info = user_profile_prompt(State.get("user_profile", {}))
+
+            # Generate input prompt and get the response
+            # If the question is related to the insurance policy, make a tool call to the retriever
             input_prompt = generate_input_prompt()
             prompt = input_prompt.invoke({
                 "question": messages,
-                "policy_number": State["policy_number"]
+                "policy_number": State["policy_number"],
+                "user_profile_info": user_profile_info,
+                "long_term_context": State["long_term_context"]
             })
-            response = self.llm_with_tools.invoke(prompt)
+            response = await self.llm_with_tools.ainvoke(prompt)
             
-            return {"messages": [response],"filtered_docs":[]}
+
+            return {"messages": [response],"filtered_docs":[], "summary": summary,
+                    "policy_number": State["policy_number"],
+                    "user_id": State["user_id"],
+                    "user_profile": State["user_profile"],
+                    "long_term_context": State["long_term_context"]}
 
         except Exception as e:
             raise InsuranceAgentException(e,sys)
 
     
-    def grade_documents(self,State): 
+    async def grade_documents(self,State): 
         """ 
         filter the retrieved documents based on their relevance to the query 
         """
         logging.info("Entering grade_documents...")
+        print("Printing state grade_documents:", State["user_profile"])
         try:
             # Get summary if it exists
             summary = State.get("summary", "")
@@ -210,13 +269,13 @@ class Graph():
             retrieval_grader = grade_documents()
 
             for doc in docs_list:
-                score = retrieval_grader.invoke({"question": messages, "document": doc})
+                score = await retrieval_grader.ainvoke({"question": messages, "document": doc})
                 grade = score.binary_score
                 if grade not in ["yes", "no"]:
                     raise ValueError(f"Invalid score received: {grade}. Expected 'yes' or 'no'.")
                 if grade == "yes":
                     relevant_docs.append(doc)
-
+            
             if relevant_docs:
                 return {"filtered_docs":relevant_docs}
             else:
@@ -239,12 +298,13 @@ class Graph():
         except Exception as e:
             raise InsuranceAgentException(e,sys)
 
-    def generate_answer(self,State):
+    async def generate_answer(self,State):
         """ 
         Generate the response based on retrieved documents and query for that given
         policy
         """
         logging.info("Entering generate_answer...")
+        print("Printing state generate_answer:", State["user_profile"])
         try:
             # Get summary if it exists
             summary = State.get("summary", "")
@@ -264,17 +324,23 @@ class Graph():
             else:
                 messages = conversation_messages
             
+            
+            # Get user profile information as a string
+            user_profile_info = user_profile_prompt(State.get("user_profile"))
+
             generation_chain = generate_response_chain()
-            response = generation_chain.invoke({
+            response = await generation_chain.ainvoke({
                 "context": context,
-                "question": messages
+                "question": messages,
+                "user_profile_info": user_profile_info,
+                "long_term_context": State["long_term_context"]
             })
             return {"messages":[response],"filtered_docs":State["filtered_docs"]}
         
         except Exception as e:
             raise InsuranceAgentException(e,sys)
     
-    def rewrite_query(self,State):
+    async def rewrite_query(self,State):
         """ 
         Rewrite the query if no relevant documents are found.
         """
@@ -286,7 +352,7 @@ class Graph():
                     break
             
             rewrite_chain = generate_rewrite_chain()
-            response = rewrite_chain.invoke({
+            response = await rewrite_chain.ainvoke({
                 "question": question
             })
             rewritten_query = response.content
@@ -297,7 +363,7 @@ class Graph():
         except Exception as e:
             raise InsuranceAgentException(e,sys)
     
-    def decide_to_regenerate(self,State) -> Literal["useful", "not supported"]:
+    async def decide_to_regenerate(self,State) -> Literal["useful", "not supported"]:
         """ 
         Decide whether to regenerate the answer based on hallucination and answer grading.
         If the answer is not grounded in the retrieved documents, it is considered "not supported".
@@ -325,7 +391,7 @@ class Graph():
                 question_with_summary = question
 
             hallucination_grader = grade_hallucinations()
-            score = hallucination_grader.invoke({
+            score = await hallucination_grader.ainvoke({
                 "documents": context,
                 "generation": message.content
             })
@@ -335,7 +401,7 @@ class Graph():
             
             answer_grader = grade_answer()
             if grade == "yes":
-                response = answer_grader.invoke({
+                response = await answer_grader.ainvoke({
                     "question": question_with_summary,
                     "generation": message.content
                 })
@@ -353,7 +419,7 @@ class Graph():
             raise InsuranceAgentException(e,sys)
       
 
-    def build_graph(self):
+    async def build_graph(self):
         """ 
         Build the graph using defined nodes
         """
@@ -401,10 +467,22 @@ class Graph():
             )
             workflow.add_edge("rewrite_query", "generate_toolcall_or_respond")
 
-            memory = MemorySaver()
-            graph = workflow.compile(checkpointer=memory)
 
-            return graph
+            # Create the Redis checkpointer
+            #redis_memory = RedisMemoryManager()
+            #checkpointer = RedisCheckpointer(redis_memory)
+            ttl_config = {
+                "default_ttl": 60,  # Default TTL in minutes
+                "refresh_on_read": True,  # Refresh TTL when store entries are read
+        }
+            async with AsyncRedisSaver.from_conn_string(
+                redis_url=REDIS_URL,
+                ttl=ttl_config  # Set TTL for the checkpointer
+            ) as checkpointer:
+                await checkpointer.asetup()
+                graph = workflow.compile(checkpointer=checkpointer)
+
+                return graph
         
         except Exception as e:
             raise InsuranceAgentException(e,sys)
